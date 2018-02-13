@@ -3,7 +3,6 @@
 
         <head>
                 <meta charset="utf-8">
-                <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
                 <title>Advanced Reactors and Fuel Cycles Group</title>
 
@@ -26,13 +25,11 @@
 
                 <!-- If the query includes 'print-pdf', include the PDF print sheet -->
                 <script>
-if( window.location.search.match( /print-pdf/gi ) ) {
-        var link = document.createElement( 'link' );
-        link.rel = 'stylesheet';
-        link.type = 'text/css';
-        link.href = 'css/print/pdf.css';
-        document.getElementsByTagName( 'head' )[0].appendChild( link );
-}
+                    var link = document.createElement( 'link' );
+                    link.rel = 'stylesheet';
+                    link.type = 'text/css';
+                    link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+                    document.getElementsByTagName( 'head' )[0].appendChild( link );
                 </script>
 
                 <!--[if lt IE 9]>
@@ -47,9 +44,14 @@ if( window.location.search.match( /print-pdf/gi ) ) {
                         <!-- Any section element inside of this container is displayed as a slide -->
                         <div class="slides">
                                 <section>
-                                        <h1>Advanced Reactors and Fuel Cycles Group</h1>
+                                        <h2>Modeling and Simulation at 
+                                                Disparate Scales</h2>
+                                        <h3>Molten Salt Reactor Multiphysics 
+                                                and International Fuel Cycle 
+                                                Transitions</h3>
                                         <br/>
                                         <h3>Kathryn (Katy) Huff</h3>
+                                        <h3>UM NERS Colloquium, 2018.02.16</h3>
                                 </section>
                                 <section>
                                         <section>
@@ -129,7 +131,7 @@ if( window.location.search.match( /print-pdf/gi ) ) {
                                                       alt="MOOSE"></a>
                                                 </span>
                                         </section>
-					 <section>
+                                         <section>
                                         <h2>Insights at Disparate Scales</h2>
                                                 <span class="fragment">
                                                 <a href="http://katyhuff.github.io/papers/research.pdf"
@@ -264,8 +266,8 @@ if( window.location.search.match( /print-pdf/gi ) ) {
                                                 <p>Capacity deployed each year, by reactor type.</p>
                                         </section>
                                </section>
-				<section>
-					<section>
+                                <section>
+                                        <section>
                                         <h2>Advanced Reactors</h2>
                                         <a href="https://www.gen-4.org/gif/upload/docs/image/jpeg/2015-07/gfr_02-ga50807-05b_350.jpg"
                                            class="image"><img 
@@ -284,7 +286,7 @@ if( window.location.search.match( /print-pdf/gi ) ) {
                                            class="image"><img 
                                            src="https://www.gen-4.org/gif/upload/docs/image/jpeg/2015-07/sfr_02-ga50807-03b-350.jpg"
                                            alt="adv reactors, gen 4"></a>
-					</section>
+                                        </section>
                                         <section>
                                                 <h2>MOOSE Framework</h2>
                                                 <span class="fragment">
@@ -380,7 +382,7 @@ if( window.location.search.match( /print-pdf/gi ) ) {
                                                 PyRK: Python for Reactor Kinetics
                                                 </span>
                                         </section>
-					<section>
+                                        <section>
                                         <h2>Review of Nuclear Reactor Kinetics</h2>
                                                 <a href="http://rationalwiki.org/w/images/thumb/0/0e/Fission.svg/800px-Fission.svg.png"
                                                   class="image"><img
