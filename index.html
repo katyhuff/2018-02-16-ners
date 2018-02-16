@@ -183,30 +183,187 @@
                                         <section>
                                                 <h3>Moltres (coupling in MOOSE)</h3>
                                                 <span class="fragment">
+                                                <a 
+                                                      href="./images/moltres-moose-diag.png"
+                                                  class="image"><img
+                                                  src="./images/moltres-moose-diag.png"
+                                                  width="90%"
+                                                  alt="Alexander Lindsay, Kathryn Huff"?></a>
+                                                </span>
+                                        </section>
+                                        <section>
+<h3>Intro to Moltres/MOOSE</h3>
+<ul>
+        <li>Fluid-fuelled, molten salt reactors</li>
+        <li>Multi-group diffusion (arbitrary groups)</li>
+        <li>Advective movement of delayed neutron precursors</li>
+        <li>Navier-Stokes thermal hydraulics</li>
+        <li>3D unstructured</li>
+        <li>2D axisymmetric</li>
+        <li>3D structured</li>
+                                        </section>
+
+                                        <section>
+<h3>Acquiring Moltres</h3>
+<pre class="bash"><code data-trim data-noescape>
+git clone https://github.com/arfc/moltres
+cd moltres
+git submodule init
+git submodule update
+    </code></pre>
+
+                                        </section>
+
+                                        <section>
+                                                <p>Moltres is built atop the Multi-physics Object-Oriented Simulation 
+Environment (MOOSE) (Gaston et al.).</p>
+                                                <small>
+<ul>
+<li>MOOSE interfaces with libMesh to discretize simulation volume into finite 
+        elements</li>
+<li>Provides interface for coding residuals that correspond to weak form of 
+        governing PDEs; also interface for coding Jacobians → more accurate 
+        Jacobians → more efficient convergence</li>
+<li>Residuals and Jacobians handed off to PetSc which handles solution of 
+        resulting non-linear system of algebraic equations</li>
+</ul>
+                                                </small>
+
+                                        </section>
+
+                                        <section>
+<p>In Moltres, neutrons are described with time-dependent multi-group diffusion:</p>
+<small>
+\[
+\begin{align}
+        \frac{1}{v_g}\frac{\partial \phi_g}{\partial t} &- \nabla \cdot D_g
+        \nabla \phi_g + \Sigma_g^r \phi_g = \sum_{g \ne g'}^G
+        \Sigma_{g'\rightarrow g}^s \phi_{g'} + \chi_g^p \sum_{g' = 1}^G (1 -
+        \beta) \nu \Sigma_{g'}^f \phi_{g'} + \chi_g^d \sum_i^I \lambda_i C_i
+\end{align}
+\]
+<br/>
+<small>
+\[
+\begin{align}
+        v_g &= \mbox{speed of neutrons in group g} \\
+        \phi_g &= \mbox{flux of neutrons in group g} \\
+        t &= \mbox{time} \\
+        D_g &= \mbox{Diffusion coefficient for neutrons in group g} \\
+        \Sigma_g^r &= \mbox{macroscopic cross-section for removal of neutrons
+        from group g} \\
+        \Sigma_{g'\rightarrow g}^s &= \mbox{macroscopic cross-section of
+        scattering from g' to g} \\
+        \chi_g^p &= \mbox{prompt fission spectrum, neutrons in group g} \\
+        G &= \mbox{number of discrete groups, g} \\
+        \nu &= \mbox{number of neutrons produced per fission} \\
+        \Sigma_g^f &= \mbox{macroscopic cross section for fission due to neutrons in group g} \\
+        \chi_g^d &= \mbox{delayed fission spectrum, neutrons in group g} \\
+        I &= \mbox{number of delayed neutron precursor groups} \\
+        \beta &= \mbox{delayed neutron fraction}\\
+        \lambda_i &= \mbox{average decay constant of delayed neutron precursors
+        in precursor group i} \\
+        C_i &= \mbox{concentration of delayed neutron precursors in precursor
+        group i} .
+\end{align}
+\]
+</small>
+</small>
+
+</section>
+<section>
+<p>Delayed neutron precursors are described to include a term representing the effect of fuel advection. 
+ </p>
+\[
+\begin{align}
+        \frac{\partial C_i}{\partial t} &= \sum_{g'= 1}^G \beta_i \nu
+        \Sigma_{g'}^f \phi_{g'} - \lambda_i C_i - \frac{\partial}{\partial z} u
+        C_i \label{eq:precursors}
+\end{align}
+\]
+</section>
+<section>
+The governing equation for the fuel temperature is modeled as:
+\[
+\begin{align}
+        \rho_fc_{p,f}\frac{\partial T_f}{\partial t} &+ \nabla\cdot\left(\rho_f
+        c_{p,f} \vec{u}\cdot T_f -k_f\nabla T_f\right) =  Q_f
+\end{align}
+\]
+<small>
+\[
+\begin{align}
+  \rho_f &= \mbox{density of fuel salt}\\
+  c_{p,f} &= \mbox{specific heat capacity of fuel salt}\\
+  T_f &= \mbox{temperature of fuel salt}\\
+  \vec{u} &= \mbox{velocity of fuel salt}\\
+  k_f &= \mbox{thermal conductivity of fuel salt}\\
+  Q_f &= \mbox{source term} = \sum_{g=1}^G \epsilon_{f,g}\Sigma_{f,g}\phi_g
+\end{align}
+\]
+</small>
+</section>
+<section>
+In the moderator, the governing equation for temperature is given by:
+
+\[\begin{align}
+        \rho_gc_{p,g}\frac{\partial T_g}{\partial t} &+
+        \nabla\cdot\left(-k_g\nabla T_g\right) =  Q_g\\
+\end{align}
+\]
+<small>
+\[
+\begin{align}
+  \rho_g &= \mbox{density of graphite moderator}\\
+  c_{p,g} &= \mbox{specific heat capacity of graphite moderator}\\
+  T_g &= \mbox{temperature of graphite moderator}\\
+  k_g &= \mbox{thermal conductivity of graphite moderator}\\
+  Q_g &= \mbox{source term in graphite moderator}\\
+\end{align}
+\]
+</small>
+
+                                        </section>
+                                        <section>
+                                                <h3>Moltres MSRE Simulation</h3>
+                                                <span class="fragment">
+                                                <a 
+                                                      href="./images/msre.gif"
+                                                  class="image"><img
+                                                  src="./images/msre.gif"
+                                                  height="500"
+                                                  alt=""></a>
+                                                </span>
+                                        </section>
+                                        <section>
+                                                <h3>Moltres MSRE Simulation</h3>
+                                                <span class="fragment">
+                                                <a 
+                                                      href="./images/moltres-input.png"
+                                                  class="image"><img
+                                                  src="./images/moltres-input.png"
+                                                  width="90%"
+                                                  alt="Alexander Lindsay, Kathryn Huff"?></a>
+                                                </span>
+                                        </section>
+                                        <section>
+                                                <h3>Moltres MSRE Simulation</h3>
+                                                <span class="fragment">
+                                                <a 
+                                                      href="./images/moltres-composition.png"
+                                                  class="image"><img
+                                                  src="./images/moltres-composition.png"
+                                                  width="90%"
+                                                  alt="Alexander Lindsay, Kathryn Huff"?></a>
+                                                </span>
+                                        </section>
+
+                                        <section>
+                                                <h3>Moltres (coupling in MOOSE)</h3>
+                                                <span class="fragment">
                                                 <a href="./images/lindsay_msre_moose.png"
                                                   class="image"><img
                                                   src="./images/lindsay_msre_moose.png"
-                                                  height="600"
-                                                  alt="Alexander Lindsay, MSRE serpent simulation"></a>
-                                                <center>Alexander Lindsay, 2016</center>
-                                                </span>
-                                        </section>
-                                        <section>
-                                                <h3>Moltres (cross sections via Serpent)</h3>
-                                                <a href="./images/lindsay_msre_serpent.png"
-                                                  class="image"><img
-                                                  src="./images/lindsay_msre_serpent.png"
-                                                  height="600"
-                                                  alt="Alexander Lindsay, MSRE serpent simulation"></a>
-                                                <center>Alexander Lindsay, 2016</center>
-                                                </span>
-                                        </section>
-                                        <section>
-                                                <h3>Moltres Precursor Drift</h3>
-                                                <a 
-                                                  href="./images/moltres/out-scaled.gif"
-                                                  class="image"><img
-                                                  src="./images/moltres/out-scaled.gif"
                                                   height="600"
                                                   alt="Alexander Lindsay, MSRE serpent simulation"></a>
                                                 <center>Alexander Lindsay, 2016</center>
@@ -224,13 +381,23 @@
                                                 </span>
                                         </section>
                                         <section>
-                                                <h3>Reactor Physics and Serpent</h3>
+                                                <h3>Moltres (cross sections via Serpent)</h3>
                                                 <a href="./images/rykhlevskii_msbr_serpent.png"
                                                   class="image"><img
                                                   src="./images/rykhlevskii_msbr_serpent.png"
                                                   height="600"
                                                   alt="Andrei Rykhlevskii, MSBR serpent simulation"></a>
                                                 <center>Andrei Rykhlevskii, 2017</center>
+                                                </span>
+                                        </section>
+                                        <section>
+                                                <h3>Moltres (cross sections via Serpent)</h3>
+                                                <a href="./images/lindsay_msre_serpent.png"
+                                                  class="image"><img
+                                                  src="./images/lindsay_msre_serpent.png"
+                                                  height="600"
+                                                  alt="Alexander Lindsay, MSRE serpent simulation"></a>
+                                                <center>Alexander Lindsay, 2016</center>
                                                 </span>
                                         </section>
                                         <section>
@@ -324,7 +491,7 @@
                                                 <h3>Agent Based Systems Analysis</h3>
                                                 <p>Even simple fuel cycles have many independent agents.</p>
                                                 <a href="https://raw.githubusercontent.com/katyhuff/thunder/gh-pages/images/materials.png" class="image"><img
-                                                        width="90%"
+                                                        width="80%"
                                                         src="https://raw.githubusercontent.com/katyhuff/thunder/gh-pages/images/materials.png" alt="material flow"></a>
                                         </section>
                                         <section data-transition="none">
@@ -349,154 +516,86 @@
                                                 \[N_i \cup N_j = N\]
                                         </section>
                                         <section>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="500"
+                                                   src="./images/synergistic-paper.png" 
+                                                   alt ="synergistic paper"></a>
+
+                                        </section>
+                                        <section>
                                         <h3>Transition Analysis</h3>
+                                        <p>Can France transition to SFRs faster 
+                                        by reprocessing spent fuel from other 
+                                        EU nations?</p>
+<br/>
+<small>
                                 <ul>
-                                <li>LWR to SFR</li>
-                                <li>$T_0 = 2015$</li>
-                                <li>$T_f <= 2215$</li>
-                                <li>$C_0 = 100$ GWe LWR</li>
-                                <li>Annual nuclear energy demand growth: 1%</li>
-                                <li>Legacy LWRs have either 60-year lifetimes or 80-year lifetimes.</li>
-                                <li>Spent LWR fuel reprocessed to fabricate FR fuel</li>
-                                <li>Spent FR fuel reprocessed to fabricate FR fuel</li>
+                                <li>French LWR to SFR Transition</li>
+                                <li>Other EU Nations send all SNF to France</li>
+                                <li>$T_0 = 1970$</li>
+                                <li>$T_f <= 2150$</li>
+                                <li>Annual nuclear energy demand growth: 0%</li>
+                                <li>Sensitivity Analysis: Legacy LWR lifetimes 
+                                        vs. time to transition.</li>
+                                <li>Sensitivity Analysis: SFR breeding ratio 
+                                        vs. time to transition.</li>
                                 </ul>
+</small>
                                         </section>
                                         <section>
-                                        <h3>Transition Analysis</h3>
-                                                <a href="http://fuelcycle.org" class="image"><img
-                                                        height="500"
-                                                        src="./images/pow_by_r_type.png" 
-                                                        alt="power deployed by reactor type."></a>
-                                                <p>Power generated by reactor type.</p>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="650"
+                                                   src="./images/synergistic-flow.png" 
+                                                   alt ="simulation flow"></a>
+
                                         </section>
                                         <section>
-                                        <h3>Transition Analysis</h3>
-                                                <a href="http://fuelcycle.org" class="image"><img
-                                                        width="900"
-                                                        src="./images/capacity_deployed_by_type.png" 
-                                                        alt="polynomial hardness"></a>
-                                                <p>Capacity deployed each year, by reactor type.</p>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="500"
+                                                   src="./images/synergistic-capacity.png" 
+                                                   alt ="nuclear capacity in 
+                                                   the eu, including FRs"></a>
+
+                                        </section>
+                                        <section>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="500"
+                                                   src="./images/synergistic-french-capacity.png" 
+                                                   alt ="nuclear capacity in 
+                                                   france"></a>
+
+                                        </section>
+                                        <section>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="500"
+                                                   src="./images/synergistic-mox.png" 
+                                                   alt ="mox loading france"></a>
+
+                                        </section>
+                                        <section>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="500"
+                                                   src="./images/synergistic-snf.png" 
+                                                   alt ="snf discharge france"></a>
+
+                                        </section>
+                                        <section>
+                                                <a href="https://github.com/arfc/transition-scenarios" 
+                                                   class="image"><img
+                                                   height="500"
+                                                   src="./images/synergistic-sens-lifetime.png" 
+                                                   alt ="sensitivity analysis 
+                                                   of lifetime extension impact 
+                                                   on transition time."></a>
+
                                         </section>
                                </section>
-                                <section>
-                                        <section>
-                                                <a href="http://pyrk.github.io"
-                                                  class="image"><img
-                                                  src="http://pyrk.github.io/_images/logo.png"
-                                                  alt="pyrk"></a>
-                                                <br/>
-                                                <span class="fragment">
-                                                PyRK: Python for Reactor Kinetics
-                                                </span>
-                                        </section>
-                                        <section>
-                                        <h3>Review of Nuclear Reactor Kinetics</h3>
-                                                <a href="http://rationalwiki.org/w/images/thumb/0/0e/Fission.svg/800px-Fission.svg.png"
-                                                  class="image"><img
-                                                  src="http://rationalwiki.org/w/images/thumb/0/0e/Fission.svg/800px-Fission.svg.png"
-                                                  alt="Fission."></a>
-                                                <p class="fragment">\[\sigma(E,\vec{r},\hat{\Omega},T,x,i)\]</p>
-                                        </section>
-                                        <!--<section>
-                                                <a href="http://wwwndc.jaea.go.jp/j40fig/jpeg/u235_f1.jpg"
-                                                  class="image"><img
-                                                  src="http://wwwndc.jaea.go.jp/j40fig/jpeg/u235_f1.jpg"
-                                                  alt="Resonances"></a>
-                                        </section>
-                                        -->
-                                        <section>
-                                                <a href="http://rationalwiki.org/w/images/thumb/1/1f/Chainreaction.svg/715px-Chainreaction.svg.png"
-                                                  class="image"><img
-                                                  src="http://rationalwiki.org/w/images/thumb/1/1f/Chainreaction.svg/715px-Chainreaction.svg.png"
-                                                  alt="Chain reaction"></a>
-                                          <p class="fragment">\[k=1\]</p>
-                                        </section>
-                                        <!--<section>
-                                                <a href="http://upload.wikimedia.org/wikipedia/commons/thumb/6/68/ThermalFissionYield.svg/800px-ThermalFissionYield.svg.png"
-                                                  class="image"><img
-                                                  height="400"
-                                                  src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/68/ThermalFissionYield.svg/800px-ThermalFissionYield.svg.png"
-                                                  alt="Fission yield"></a>
-                                          <p class="fragment">\[i\]</p>
-                                          </section>-->
-                                        <section>
-                                        <h3>Reactivity</h3>
-\[
-\begin{align}
-   k &= \mbox{"neutron multiplication factor"}\\
-     &= \frac{\mbox{neutrons causing fission}}{\mbox{neutrons produced by fission}}\\
-   \rho &= \frac{k-1}{k}\\
-   \rho &= \mbox{reactivity}\\
-\end{align}
-\]
-</section>
-                                        <section>
-                                                 <a href="github.com/pyrk/pyrk"
-                                                  class="image"><img
-                                                  width="100%"
-                                                  src="./images/feedback.png"
-                                                  alt="Feedback"></a>
-                                        </section>
-                                        <section> <a href="http://rationalwiki.org/wiki/File:Fission.svg"
-                                                  class="image"><img
-                                                  src="./images/delayed_neutron.png"
-                                                  height="400"
-                                                  alt="Delayed Neutrons"
-                                                  ></a>
-                                          <p class="fragment">\[\beta_i, \lambda_{d,i}\]</p>
-                                        </section>
-                                        <section>
-                                         <h4>Ramp Reactivity Insertion</h4>
-                                                  <a
-                                                    href="https://raw.githubusercontent.com/katyhuff/2016-03-02-utk/gh-pages/images/reactivity.png"
-                                                    class="image"><img
-                                                    width="45%"
-                                                    src="./images/reactivity.png"
-                                                    alt="reactivity"></a>
-                                                <span class="fragment">
-                                                  <a
-                                                    href="https://raw.githubusercontent.com/katyhuff/2016-03-02-utk/gh-pages/images/power.png"
-                                                    class="image"><img
-                                                    width="43%"
-                                                    src="./images/power.png"
-                                                    alt="pwer"></a>
-                                                </span>
-                                        </section>
-                                        <section>
-                                         <h4>Fuel Layer Temperature</h4>
-                                                  <a
-                                                    href="https://raw.githubusercontent.com/katyhuff/2016-03-02-utk/gh-pages/images/p_trans.png"
-                                                    class="image"><img
-                                                    width="49%"
-                                                    src="./images/p_trans.png"
-                                                    alt="power"></a>
-                                                <span class="fragment">
-                                                  <a
-                                                    href="https://raw.githubusercontent.com/katyhuff/2016-03-02-utk/gh-pages/images/f_temp.png"
-                                                    class="image"><img
-                                                    width="49%"
-                                                    src="./images/f_temp.png"
-                                                    alt="Fuel Temperatures"></a>
-                                                </span>
-                                        </section>
-                                        <section>
-                                         <h4>Coolant Temperature</h4>
-                                                  <a
-                                                    href="https://raw.githubusercontent.com/katyhuff/2016-03-02-utk/gh-pages/images/f_temp.png"
-                                                    class="image"><img
-                                                    width="49%"
-                                                    src="./images/f_temp.png"
-                                                    alt="Fuel Temperatures"></a>
-                                                <span class="fragment">
-                                                  <a
-                                                    href="https://raw.githubusercontent.com/katyhuff/2016-03-02-utk/gh-pages/images/c_temp.png"
-                                                    class="image"><img
-                                                    width="49%"
-                                                    src="./images/c_temp.png"
-                                                    alt="Coolant Temperatures"></a>
-                                                </span>
-                                        </section>
-                                </section>
                                 <section>
                                         <section>
                                                 <h3>Links</h3>
@@ -505,7 +604,7 @@
                                                                 <li><a href="http://arfc.npre.illinois.edu">arfc.npre.illinois.edu</a></li>
                                                                 <li><a href="http://kdhuff.npre.illinois.edu"> kdhuff.npre.illinois.edu </a></li>
                                                                 <li><a href="http://fuelcycle.org"> fuelcycle.org</a></li>
-                                                                <li><a href="http://pyrk.github.io/">pyrk.github.io</a></li>
+                                                                <li><a href="http://github.io/arfc/moltres">github.io/arfc/moltres</a></li>
                                                         </ul>
                                         </section>
                                         <section>
